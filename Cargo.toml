@@ -1,0 +1,10 @@
+[package]
+name = "autoswappr_backend"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = "0.7.9"
+tokio = { version =  "1.41.1", features = ["full"] }
+reqwest = { version = "0.12.9", features = ["json"] }
+tower-http = { version = "0.4.4", features = ["cors", "fs"] }
