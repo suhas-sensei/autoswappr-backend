@@ -1,18 +1,39 @@
-use axum::Router;
-use tokio:: net::TcpListener;
-mod routes;
-pub mod utils;
-
-
+use autoswappr_backend::{telemetry, Configuration, Db};
+use tokio::net::TcpListener;
 
 #[tokio::main]
 async fn main() {
-    // build our application with a multiple routes
-    let routes_all: Router = Router::new().merge(routes::routes_handler::routes());
-    let listener = TcpListener::bind("127.0.0.1:8080").await.unwrap();
-    println!("->> SERVER RUNNING ON {:?} \n", listener);
-    
-    axum::serve(listener, routes_all.into_make_service())
-    .await
-    .unwrap()
+    // Read (development) Environment Variables.
+    dotenvy::dotenv().ok();
+
+    // Setup telemetry.
+    telemetry::setup_tracing();
+
+    // App configuration.
+    tracing::debug!("Initializing configuration");
+    let config = Configuration::new();
+
+    // Initialize DB connection.
+    tracing::debug!("Initializing DB pool");
+    let db = Db::new(&config.db_str, config.db_pool_max_size)
+        .await
+        .expect("Failed to initialize DB");
+
+    // Run migrations.
+    tracing::debug!("Running Migrations");
+    db.migrate().await.expect("Failed to run migrations");
+
+    // Listen for requests on specified port.
+    tracing::info!("Starting server on {}", config.listen_address);
+    let listener = TcpListener::bind(&config.listen_address)
+        .await
+        .expect("Failed to bind address");
+
+    // Spin up router.
+    let router = autoswappr_backend::router(config, db);
+
+    // Serve requests.
+    axum::serve(listener, router)
+        .await
+        .expect("Failed to start server")
 }

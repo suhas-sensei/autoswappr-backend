@@ -3,8 +3,42 @@ name = "autoswappr_backend"
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+path = "src/main.rs"
+name = "autoswappr_backend"
+
 [dependencies]
 axum = "0.7.9"
-tokio = { version =  "1.41.1", features = ["full"] }
+tokio = { version = "1.41.1", features = ["full"] }
 reqwest = { version = "0.12.9", features = ["json"] }
-tower-http = { version = "0.4.4", features = ["cors", "fs"] }
+tower-http = { version = "0.6.1", features = [
+    "trace",
+    "timeout",
+    "request-id",
+    "cors",
+    "normalize-path",
+    "fs",
+] }
+dotenvy = "0.15.7"
+tracing = "0.1.40"
+tracing-subscriber = { version = "0.3.18", features = ["json", "env-filter"] }
+tower = "0.5.1"
+serde = { version = "1.0.215", features = ["derive"] }
+anyhow = "1.0.93"
+sqlx = { version = "0.8.2", features = [
+    "postgres",
+    "runtime-tokio-rustls",
+    "macros",
+    "migrate",
+    "chrono",
+    "json",
+    "uuid",
+] }
+hyper = "1.5.1"
+uuid = { version = "1.11.0", features = ["v7", "serde"] }
+serde_json = "1.0.133"
+thiserror = "2.0.3"
+time = { version = "0.3.36", features = ["formatting", "parsing"] }
