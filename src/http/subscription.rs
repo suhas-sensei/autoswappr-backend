@@ -12,10 +12,6 @@ pub async fn create_subscription(
         return Err(StatusCode::BAD_REQUEST);
     }
 
-    if payload.percentage.iter().sum::<i16>() != 100 {
-        return Err(StatusCode::BAD_REQUEST);
-    }
-
     if !payload.to_token.starts_with("0x") && payload.to_token.len() != 42 {
         return Err(StatusCode::BAD_REQUEST);
     }
@@ -40,17 +36,6 @@ pub async fn create_subscription(
         "#,
         payload.wallet_address,
         payload.to_token,
-    )
-    .execute(&mut *tx)
-    .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-
-    sqlx::query!(
-        r#"
-        DELETE FROM swap_subscription_from_token
-        WHERE wallet_address = $1
-        "#,
-        payload.wallet_address
     )
     .execute(&mut *tx)
     .await

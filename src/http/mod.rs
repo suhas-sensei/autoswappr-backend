@@ -3,9 +3,9 @@ use axum::{
     Router,
 };
 mod health_check;
+mod subscription;
 mod types;
 mod unsubscription;
-mod subscription;
 
 use crate::AppState;
 

@@ -26,7 +26,7 @@ async fn clean_database(pool: &PgPool) {
         .fetch_one(pool)
         .await
         .unwrap();
-    
+
     println!("Database cleaned. Subscription count: {:?}", count.count);
 }
 
@@ -117,11 +117,20 @@ async fn test_successful_subscription_creation() {
 
     assert_eq!(from_token_records.len(), 2);
 
-    assert_eq!(from_token_records[0].from_token, from_tokens[0]);
-    assert_eq!(from_token_records[0].percentage as i32, percentages[0]);
+    let db_token_percentages: std::collections::HashMap<&str, i16> = from_token_records
+        .iter()
+        .map(|record| (record.from_token.as_str(), record.percentage))
+        .collect();
 
-    assert_eq!(from_token_records[1].from_token, from_tokens[1]);
-    assert_eq!(from_token_records[1].percentage as i32, percentages[1]);
+    for (token, &percentage) in from_tokens.iter().zip(percentages.iter()) {
+        assert_eq!(
+            db_token_percentages.get(token),
+            Some(percentage as i16).as_ref(),
+            "Token {} should have percentage {}",
+            token,
+            percentage
+        );
+    }
 }
 
 #[tokio::test]
