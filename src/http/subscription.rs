@@ -1,8 +1,4 @@
-use axum::{
-    extract::State,
-    http::StatusCode,
-    Json,
-};
+use axum::{extract::State, http::StatusCode, Json};
 use sqlx::PgPool;
 
 use super::types::{CreateSubscriptionRequest, CreateSubscriptionResponse};
@@ -20,7 +16,20 @@ pub async fn create_subscription(
         return Err(StatusCode::BAD_REQUEST);
     }
 
-    let mut tx = state.db.pool.begin().await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    if !payload.to_token.starts_with("0x") && payload.to_token.len() != 42 {
+        return Err(StatusCode::BAD_REQUEST);
+    }
+
+    if !payload.wallet_address.starts_with("0x") && payload.wallet_address.len() != 42 {
+        return Err(StatusCode::BAD_REQUEST);
+    }
+
+    let mut tx = state
+        .db
+        .pool
+        .begin()
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     sqlx::query!(
         r#"
@@ -63,9 +72,11 @@ pub async fn create_subscription(
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     }
 
-    tx.commit().await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    tx.commit()
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     Ok(Json(CreateSubscriptionResponse {
         wallet_address: payload.wallet_address,
     }))
-} 
+}
