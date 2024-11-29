@@ -28,14 +28,14 @@ pub async fn handle_unsubscribe(
         ));
     }
 
-    sqlx::query(
+    sqlx::query!(
         r#"
         DELETE FROM swap_subscription_from_token
         WHERE wallet_address = $1 AND from_token = $2
         "#,
+        payload.wallet_address,
+        payload.from_token
     )
-    .bind(&payload.wallet_address)
-    .bind(&payload.from_token)
     .execute(&state.db.pool)
     .await
     .map_err(ApiError::DatabaseError)?;

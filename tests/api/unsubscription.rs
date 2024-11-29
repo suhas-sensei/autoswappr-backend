@@ -10,29 +10,29 @@ async fn test_unsubscribe_success() {
     let app = TestApp::new().await;
 
     // Insert test data
-    sqlx::query(
+    sqlx::query!(
         r#"
         INSERT INTO swap_subscription (wallet_address, to_token)
         VALUES ($1, $2)
         ON CONFLICT (wallet_address) DO NOTHING
         "#,
+        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+        "0x123400000000000000000000000000000000ABCD"
     )
-    .bind("0x742d35Cc6634C0532925a3b844Bc454e4438f44e")
-    .bind("0x123400000000000000000000000000000000ABCD")
     .execute(&app.db.pool)
     .await
     .expect("Failed to insert test subscription");
 
-    sqlx::query(
+    sqlx::query!(
         r#"
         INSERT INTO swap_subscription_from_token (wallet_address, from_token, percentage)
         VALUES ($1, $2, $3)
         ON CONFLICT (wallet_address, from_token) DO NOTHING
         "#,
+        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+        "0x1234000000000000000000000000000000001234",
+        50
     )
-    .bind("0x742d35Cc6634C0532925a3b844Bc454e4438f44e")
-    .bind("0x1234000000000000000000000000000000001234")
-    .bind(50)
     .execute(&app.db.pool)
     .await
     .expect("Failed to insert test from_token");
