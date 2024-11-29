@@ -1,5 +1,4 @@
 use axum::{extract::State, http::StatusCode, Json};
-use sqlx::PgPool;
 
 use super::types::{CreateSubscriptionRequest, CreateSubscriptionResponse};
 use crate::AppState;
@@ -31,7 +30,7 @@ pub async fn create_subscription(
         r#"
         INSERT INTO swap_subscription (wallet_address, to_token, is_active)
         VALUES ($1, $2, true)
-        ON CONFLICT (wallet_address) 
+        ON CONFLICT (wallet_address)
         DO UPDATE SET to_token = $2, is_active = true, updated_at = NOW()
         "#,
         payload.wallet_address,
@@ -44,7 +43,7 @@ pub async fn create_subscription(
     for (token, percentage) in payload.from_token.iter().zip(payload.percentage.iter()) {
         sqlx::query!(
             r#"
-            INSERT INTO swap_subscription_from_token 
+            INSERT INTO swap_subscription_from_token
             (wallet_address, from_token, percentage)
             VALUES ($1, $2, $3)
             "#,
