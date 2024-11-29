@@ -3,6 +3,7 @@ use axum::{
     Router,
 };
 mod health_check;
+mod subscription;
 mod types;
 mod unsubscription;
 
@@ -14,4 +15,5 @@ pub fn router() -> Router<AppState> {
     Router::new()
         .route("/health_check", get(health_check::health_check))
         .route("/unsubscribe", post(unsubscription::handle_unsubscribe))
+        .route("/subscriptions", post(subscription::create_subscription))
 }
