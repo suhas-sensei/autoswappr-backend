@@ -7,6 +7,29 @@ use sqlx::PgPool;
 
 use crate::helpers::*;
 
+async fn clean_database(pool: &PgPool) {
+    let _ = sqlx::query!("SELECT COUNT(*) FROM swap_subscription")
+        .fetch_one(pool)
+        .await
+        .unwrap_or_else(|_| panic!("Database tables not ready"));
+
+    sqlx::query!("DELETE FROM swap_subscription_from_token")
+        .execute(pool)
+        .await
+        .unwrap();
+    sqlx::query!("DELETE FROM swap_subscription")
+        .execute(pool)
+        .await
+        .unwrap();
+
+    let count = sqlx::query!("SELECT COUNT(*) as count FROM swap_subscription")
+        .fetch_one(pool)
+        .await
+        .unwrap();
+    
+    println!("Database cleaned. Subscription count: {:?}", count.count);
+}
+
 #[tokio::test]
 async fn test_subscribe_ok() {
     let app = TestApp::new().await;
@@ -36,14 +59,7 @@ async fn test_subscribe_ok() {
 async fn test_successful_subscription_creation() {
     let app = TestApp::new().await;
 
-    sqlx::query!("DELETE FROM swap_subscription_from_token")
-        .execute(&app.db.pool)
-        .await
-        .unwrap();
-    sqlx::query!("DELETE FROM swap_subscription")
-        .execute(&app.db.pool)
-        .await
-        .unwrap();
+    clean_database(&app.db.pool).await;
 
     let wallet_address = "0x742d35Cc6634C0532925a3b844Bc454e4438f44e";
     let to_token = "0x1234567890123456789012345678901234567890";
@@ -101,25 +117,18 @@ async fn test_successful_subscription_creation() {
 
     assert_eq!(from_token_records.len(), 2);
 
-    assert_eq!(from_token_records[0].from_token, from_tokens[1]);
-    assert_eq!(from_token_records[0].percentage as i32, percentages[1]);
+    assert_eq!(from_token_records[0].from_token, from_tokens[0]);
+    assert_eq!(from_token_records[0].percentage as i32, percentages[0]);
 
-    assert_eq!(from_token_records[1].from_token, from_tokens[0]);
-    assert_eq!(from_token_records[1].percentage as i32, percentages[0]);
+    assert_eq!(from_token_records[1].from_token, from_tokens[1]);
+    assert_eq!(from_token_records[1].percentage as i32, percentages[1]);
 }
 
 #[tokio::test]
 async fn test_invalid_subscription_percentage() {
     let app = TestApp::new().await;
 
-    sqlx::query!("DELETE FROM swap_subscription_from_token")
-        .execute(&app.db.pool)
-        .await
-        .unwrap();
-    sqlx::query!("DELETE FROM swap_subscription")
-        .execute(&app.db.pool)
-        .await
-        .unwrap();
+    clean_database(&app.db.pool).await;
 
     let payload = json!({
         "wallet_address": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
@@ -146,14 +155,7 @@ async fn test_invalid_subscription_percentage() {
 async fn test_invalid_percentage_length() {
     let app = TestApp::new().await;
 
-    sqlx::query!("DELETE FROM swap_subscription_from_token")
-        .execute(&app.db.pool)
-        .await
-        .unwrap();
-    sqlx::query!("DELETE FROM swap_subscription")
-        .execute(&app.db.pool)
-        .await
-        .unwrap();
+    clean_database(&app.db.pool).await;
 
     let payload = json!({
         "wallet_address": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
@@ -180,14 +182,7 @@ async fn test_invalid_percentage_length() {
 async fn test_invalid_wallet_address() {
     let app = TestApp::new().await;
 
-    sqlx::query!("DELETE FROM swap_subscription_from_token")
-        .execute(&app.db.pool)
-        .await
-        .unwrap();
-    sqlx::query!("DELETE FROM swap_subscription")
-        .execute(&app.db.pool)
-        .await
-        .unwrap();
+    clean_database(&app.db.pool).await;
 
     let payload = json!({
         "wallet_address": "invalid_wallet_address",
@@ -214,14 +209,7 @@ async fn test_invalid_wallet_address() {
 async fn test_invalid_to_token_address() {
     let app = TestApp::new().await;
 
-    sqlx::query!("DELETE FROM swap_subscription_from_token")
-        .execute(&app.db.pool)
-        .await
-        .unwrap();
-    sqlx::query!("DELETE FROM swap_subscription")
-        .execute(&app.db.pool)
-        .await
-        .unwrap();
+    clean_database(&app.db.pool).await;
 
     let payload = json!({
         "wallet_address": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
