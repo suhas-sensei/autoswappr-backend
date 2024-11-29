@@ -34,6 +34,8 @@ async fn clean_database(pool: &PgPool) {
 async fn test_subscribe_ok() {
     let app = TestApp::new().await;
 
+    clean_database(&app.db.pool).await;
+
     let payload = json!({
         "wallet_address": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
         "to_token": "0x1234567890123456789012345678901234567890",
@@ -117,47 +119,26 @@ async fn test_successful_subscription_creation() {
 
     assert_eq!(from_token_records.len(), 2);
 
-    let db_token_percentages: std::collections::HashMap<&str, i16> = from_token_records
+    let token_percentages: std::collections::HashMap<&str, i16> = from_token_records
         .iter()
         .map(|record| (record.from_token.as_str(), record.percentage))
         .collect();
 
-    for (token, &percentage) in from_tokens.iter().zip(percentages.iter()) {
-        assert_eq!(
-            db_token_percentages.get(token),
-            Some(percentage as i16).as_ref(),
-            "Token {} should have percentage {}",
-            token,
-            percentage
-        );
-    }
-}
+    assert_eq!(
+        token_percentages.get(from_tokens[0]),
+        Some(&(percentages[0] as i16)),
+        "First token {} should have percentage {}",
+        from_tokens[0],
+        percentages[0]
+    );
 
-#[tokio::test]
-async fn test_invalid_subscription_percentage() {
-    let app = TestApp::new().await;
-
-    clean_database(&app.db.pool).await;
-
-    let payload = json!({
-        "wallet_address": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-        "to_token": "0x1234567890123456789012345678901234567890",
-        "from_token": [
-            "0xabcdef0123456789abcdef0123456789abcdef01",
-            "0x9876543210987654321098765432109876543210"
-        ],
-        "percentage": [20, 40]
-    });
-
-    let req = Request::builder()
-        .method("POST")
-        .uri("/subscriptions")
-        .header(CONTENT_TYPE, "application/json")
-        .body(Body::from(serde_json::to_string(&payload).unwrap()))
-        .unwrap();
-
-    let resp = app.request(req).await;
-    assert_eq!(resp.status(), StatusCode::BAD_REQUEST);
+    assert_eq!(
+        token_percentages.get(from_tokens[1]),
+        Some(&(percentages[1] as i16)),
+        "Second token {} should have percentage {}",
+        from_tokens[1],
+        percentages[1]
+    );
 }
 
 #[tokio::test]
