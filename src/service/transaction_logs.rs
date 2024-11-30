@@ -98,6 +98,6 @@ pub async fn log_transaction(
         amount_from,
         amount_to,
     );
-    tx.save(&db).await?;
+    tx.save(db).await?;
     Ok(tx)
 }
