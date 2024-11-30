@@ -3,8 +3,8 @@ use axum::{
     Router,
 };
 mod health_check;
-mod transaction_logs;
 mod subscription;
+mod transaction_logs;
 mod types;
 mod unsubscription;
 
