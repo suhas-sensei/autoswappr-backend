@@ -1,8 +1,32 @@
 use serde::de::Visitor;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use sqlx::FromRow;
 use std::fmt::Formatter;
 use time::format_description::well_known::Rfc3339;
 use time::OffsetDateTime;
+
+#[derive(Debug, Deserialize)]
+pub struct ActivityLogGetRequest {
+    pub cursor: Option<String>,
+    pub limit: Option<i32>,
+}
+
+#[derive(FromRow, Debug, Serialize)]
+pub struct ActivityLogData {
+    pub wallet_address: String,
+    pub from_token: String,
+    pub to_token: String,
+    pub percentage: i16,
+    pub amount_from: i64,
+    pub amount_to: i64,
+    pub created_at: String,
+}
+
+#[derive(Debug, Serialize)]
+pub struct ActivityLogGetResponse {
+    pub transactions: Vec<ActivityLogData>,
+    pub next_cursor: Option<String>,
+}
 
 #[derive(Debug, Deserialize)]
 pub struct CreateSubscriptionRequest {
