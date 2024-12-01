@@ -4,6 +4,7 @@ use axum::{
 };
 mod health_check;
 mod subscription;
+mod transaction_logs;
 mod types;
 mod unsubscription;
 
@@ -14,6 +15,10 @@ use crate::AppState;
 pub fn router() -> Router<AppState> {
     Router::new()
         .route("/health_check", get(health_check::health_check))
+        .route(
+            "/log_transaction",
+            post(transaction_logs::log_transaction_to_db),
+        )
         .route("/unsubscribe", post(unsubscription::handle_unsubscribe))
         .route("/subscriptions", post(subscription::create_subscription))
 }
