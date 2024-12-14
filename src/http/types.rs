@@ -8,7 +8,6 @@ use time::OffsetDateTime;
 #[derive(Debug, Deserialize)]
 pub struct ActivityLogGetRequest {
     pub cursor: Option<String>,
-    pub limit: Option<i32>,
 }
 
 #[derive(FromRow, Debug, Serialize)]
