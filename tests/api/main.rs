@@ -4,3 +4,4 @@ mod helpers;
 mod subscription;
 mod transaction_logs;
 mod unsubscription;
+mod percentage_update;

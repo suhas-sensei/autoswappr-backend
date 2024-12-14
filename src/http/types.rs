@@ -80,3 +80,15 @@ impl<'de> Deserialize<'de> for TimeStamptz {
         deserializer.deserialize_str(StrVisitor)
     }
 }
+
+#[derive(Debug, Deserialize)]
+pub struct UpdatePercentageRequest {
+    pub wallet_address: String,
+    pub from_token: String,  
+    pub percentage: i16
+}
+
+#[derive(Debug, Serialize)]
+pub struct UpdatePercentageResponse {
+    pub message: String,
+}
