@@ -2,9 +2,9 @@ use axum::{
     routing::{get, post},
     Router,
 };
-mod percentage_update;
 mod activity_log_retrieval;
 mod health_check;
+mod percentage_update;
 mod subscription;
 mod transaction_logs;
 mod types;
@@ -23,5 +23,8 @@ pub fn router() -> Router<AppState> {
         .route("/unsubscribe", post(unsubscription::handle_unsubscribe))
         .route("/subscriptions", post(subscription::create_subscription))
         .route("/log_retrieval", get(activity_log_retrieval::log_retrieval))
-        .route("/update-percentage", post(percentage_update::update_percentage))
+        .route(
+            "/update-percentage",
+            post(percentage_update::update_percentage),
+        )
 }

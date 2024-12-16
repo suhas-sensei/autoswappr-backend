@@ -3,7 +3,6 @@ use axum::{
     http::{header::CONTENT_TYPE, Request, StatusCode},
 };
 use serde_json::json;
-use sqlx::PgPool;
 
 use crate::helpers::*;
 

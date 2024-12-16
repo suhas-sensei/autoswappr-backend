@@ -84,8 +84,8 @@ impl<'de> Deserialize<'de> for TimeStamptz {
 #[derive(Debug, Deserialize)]
 pub struct UpdatePercentageRequest {
     pub wallet_address: String,
-    pub from_token: String,  
-    pub percentage: i16
+    pub from_token: String,
+    pub percentage: i16,
 }
 
 #[derive(Debug, Serialize)]

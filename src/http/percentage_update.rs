@@ -1,6 +1,6 @@
-use axum::{extract::State, http::StatusCode, Json};
 use super::types::{UpdatePercentageRequest, UpdatePercentageResponse};
 use crate::AppState;
+use axum::{extract::State, http::StatusCode, Json};
 
 pub async fn update_percentage(
     State(state): State<AppState>,
@@ -8,6 +8,9 @@ pub async fn update_percentage(
 ) -> Result<Json<UpdatePercentageResponse>, StatusCode> {
     // wallet address validation
     if !payload.wallet_address.starts_with("0x") && payload.wallet_address.len() != 42 {
+        return Err(StatusCode::BAD_REQUEST);
+    }
+    if payload.percentage <= 0 || payload.percentage >= 100 {
         return Err(StatusCode::BAD_REQUEST);
     }
 
