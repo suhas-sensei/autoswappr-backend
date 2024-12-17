@@ -7,6 +7,10 @@ use time::OffsetDateTime;
 
 #[derive(Debug, Deserialize)]
 pub struct ActivityLogGetRequest {
+    pub wallet_address: Option<String>,
+    pub from_token: Option<String>,
+    pub to_token: Option<String>,
+    pub amount_to: Option<i64>,
     pub cursor: Option<String>,
 }
 
