@@ -52,7 +52,7 @@ pub async fn log_retrieval(
     }
 
     if let Some(amount_to) = query_params.amount_to {
-        conditions.push(format!("AND amount_to = '{}'", amount_to));
+        conditions.push(format!("AND amount_to = {}", amount_to));
     }
 
     let query_build = format!(
