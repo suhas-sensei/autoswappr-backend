@@ -8,9 +8,9 @@ use serde_json::json;
 
 #[tokio::test]
 async fn test_transaction_log_service_with_valid_payload() {
-    let address = "0xF1d2eD1a7d9A2aE3c467Bc72694C9B8C16e2C5dF";
-    let from_token = "0xF1d2eD1a7d9A2aE3c467Bc72694C9B8C16e2C5dF";
-    let to_token = "0xF1d2eD1a7d9A2aE3c467Bc72694C9B8C16e2C5dF";
+    let address = "0xdbfcab49bd9bced4636b04319d71fbd0d84bde78a1d38e9e2fc391e83187c1c3";
+    let from_token = "0x07ab8059db97aab8ced83b37a1d60b8eef540f6cdc96acc153d583a59bedd125";
+    let to_token = "0x40ca979f20ed76f960dc719457eaf0cef3b2c3932d58435b9192a58bc56c1e40";
     let percentage = 50;
     let amount_from = 4000;
     let amount_to = 2000;
@@ -70,9 +70,9 @@ async fn test_transaction_log_request_with_valid_payload() {
                 .header("Content-Type", "application/json")
                 .body(Body::from(
                     json!({
-                        "wallet_address": "0xF1d2eD1a7d9A2aE3c467Bc72694C9B8C16e2C5dF",
-                        "from_token": "0xF1d2eD1a7d9A2aE3c467Bc72694C9B8C16e2C5dF",
-                        "to_token": "0xF1d2eD1a7d9A2aE3c467Bc72694C9B8C16e2C5dF",
+                        "wallet_address": "0xdbfcab49bd9bced4636b04319d71fbd0d84bde78a1d38e9e2fc391e83187c1c3",
+                        "from_token": "0x07ab8059db97aab8ced83b37a1d60b8eef540f6cdc96acc153d583a59bedd125",
+                        "to_token": "0x40ca979f20ed76f960dc719457eaf0cef3b2c3932d58435b9192a58bc56c1e40",
                         "percentage": 50,
                         "amount_from": 5000,
                         "amount_to": 4000
@@ -88,8 +88,7 @@ async fn test_transaction_log_request_with_valid_payload() {
     let body = to_bytes(response.into_body(), 1024 * 16).await.unwrap();
     let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
 
-    assert_eq!(json["status"], "success");
-    assert_eq!(json["message"], "transaction logged successfully");
+    assert_eq!(json["success"], true);
 }
 
 #[tokio::test]
@@ -104,8 +103,8 @@ async fn test_transaction_log_request_with_invalid_payload() {
                 .body(Body::from(
                     json!({
                         "wallet_address": "0xF1d2eD1a7d9A2aE3c467Bc726946e2C5dF", // invalid data
-                        "from_token": "0xF1d2eD1a7d9A2aE3c467Bc72694C9B8C16e2C5dF",
-                        "to_token": "0xF1d2eD1a7d9A2aE3c467Bc72694C9B8C16e2C5dF",
+                        "from_token": "0x07ab8059db97aab8ced83b37a1d60b8eef540f6cdc96acc153d583a59bedd125",
+                        "to_token": "0xdbfcab49bd9bced4636b04319d71fbd0d84bde78a1d38e9e2fc391e83187c1c3",
                         "percentage": 500, // invalid data
                         "amount_from": 5000,
                         "amount_to": 4000

@@ -21,7 +21,7 @@ async fn setup_test_data(
         DO UPDATE SET to_token = $2, is_active = true, updated_at = NOW()
         "#,
         wallet_address,
-        "0x1234567890123456789012345678901234567890"
+        "0x07ab8059db97aab8ced83b37a1d60b8eef540f6cdc96acc153d583a59bedd125"
     )
     .execute(pool)
     .await
@@ -48,8 +48,8 @@ async fn test_update_percentage_success() {
 
     clean_database(&app.db.pool).await;
 
-    let wallet_address = "0x742d35Cc6634C0532925a3b844Bc454e4438f44e";
-    let from_token = "0xabcdef0123456789abcdef0123456789abcdef01";
+    let wallet_address = "0xed0fd074f3acf231815432ad61dcce077a488fbd05a27e37471de432a32c1656";
+    let from_token = "0x1dcb0e5a46ae5a8f49fd948ebb0dcbc96d909ea35c5b312bc719bff47cb8720f";
     let initial_percentage = 50;
 
     setup_test_data(&app.db.pool, wallet_address, from_token, initial_percentage).await;
@@ -61,8 +61,8 @@ async fn test_update_percentage_success() {
     });
 
     let req = Request::builder()
-        .method("POST")
-        .uri("/update-percentage")
+        .method("PATCH")
+        .uri("/update_percentage")
         .header(CONTENT_TYPE, "application/json")
         .body(Body::from(serde_json::to_string(&payload).unwrap()))
         .unwrap();
@@ -72,7 +72,7 @@ async fn test_update_percentage_success() {
 
     let updated = sqlx::query!(
         r#"
-        SELECT percentage 
+        SELECT percentage
         FROM swap_subscription_from_token
         WHERE wallet_address = $1 AND from_token = $2
         "#,
@@ -93,14 +93,14 @@ async fn test_update_percentage_not_found() {
     clean_database(&app.db.pool).await;
 
     let payload = json!({
-        "wallet_address": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-        "from_token": "0xabcdef0123456789abcdef0123456789abcdef01",
+        "wallet_address": "0x1dcb0e5a46ae5a8f49fd948ebb0dcbc96d909ea35c5b312bc719bff47cb8720f",
+        "from_token": "0xed0fd074f3acf231815432ad61dcce077a488fbd05a27e37471de432a32c1656",
         "percentage": 75
     });
 
     let req = Request::builder()
-        .method("POST")
-        .uri("/update-percentage")
+        .method("PATCH")
+        .uri("/update_percentage")
         .header(CONTENT_TYPE, "application/json")
         .body(Body::from(serde_json::to_string(&payload).unwrap()))
         .unwrap();

@@ -43,7 +43,7 @@ impl TransactionLog {
 
     fn validate_address(&self, address: &str) -> Result<(), String> {
         match address.starts_with("0x")
-            && address.len() == 42
+            && address.len() == 66
             && address[2..].chars().all(|c| c.is_ascii_hexdigit())
         {
             true => Ok(()),

@@ -1,5 +1,5 @@
 use axum::{
-    routing::{get, post},
+    routing::{get, patch, post},
     Router,
 };
 mod activity_log_retrieval;
@@ -28,8 +28,8 @@ pub fn router() -> Router<AppState> {
         )
         .route("/log_retrieval", get(activity_log_retrieval::log_retrieval))
         .route(
-            "/update-percentage",
-            post(percentage_update::update_percentage),
+            "/update_percentage",
+            patch(percentage_update::update_percentage),
         )
         .route("/auto_swap", post(auto_swap_service::handle_auto_swap))
 }

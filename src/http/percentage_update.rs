@@ -1,29 +1,35 @@
-use super::types::{UpdatePercentageRequest, UpdatePercentageResponse};
+use super::types::{SuccessResponse, UpdatePercentageRequest};
 use crate::AppState;
 use axum::{extract::State, http::StatusCode, Json};
 
 pub async fn update_percentage(
     State(state): State<AppState>,
     Json(payload): Json<UpdatePercentageRequest>,
-) -> Result<Json<UpdatePercentageResponse>, StatusCode> {
+) -> Result<Json<SuccessResponse>, StatusCode> {
+    let UpdatePercentageRequest {
+        wallet_address,
+        from_token,
+        percentage,
+    } = payload;
+
     // wallet address validation
-    if !payload.wallet_address.starts_with("0x") && payload.wallet_address.len() != 42 {
+    if !wallet_address.starts_with("0x") || wallet_address.len() != 66 {
         return Err(StatusCode::BAD_REQUEST);
     }
-    if payload.percentage <= 0 || payload.percentage >= 100 {
+    if percentage <= 0 || percentage > 100 {
         return Err(StatusCode::BAD_REQUEST);
     }
 
     // percent updte
     let result = sqlx::query!(
         r#"
-        UPDATE swap_subscription_from_token 
+        UPDATE swap_subscription_from_token
         SET percentage = $1, updated_at = NOW()
         WHERE wallet_address = $2 AND from_token = $3
         "#,
-        payload.percentage,
-        payload.wallet_address,
-        payload.from_token
+        percentage,
+        wallet_address,
+        from_token
     )
     .execute(&state.db.pool)
     .await
@@ -33,7 +39,5 @@ pub async fn update_percentage(
         return Err(StatusCode::NOT_FOUND);
     }
 
-    Ok(Json(UpdatePercentageResponse {
-        message: "Percentage updated successfully".to_string(),
-    }))
+    Ok(Json(SuccessResponse { success: true }))
 }

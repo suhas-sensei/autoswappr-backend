@@ -1,8 +1,6 @@
 use serde::de::Visitor;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use sqlx::FromRow;
-use starknet::core::codec::{Decode, Encode};
-use starknet::core::types::{Felt, U256};
 use std::fmt::Formatter;
 use time::format_description::well_known::Rfc3339;
 use time::OffsetDateTime;
@@ -48,43 +46,14 @@ pub struct CreateSubscriptionResponse {
 
 #[derive(Debug, Deserialize)]
 pub struct AutoSwapRequest {
-    pub to: String,
-    pub value: i64,
+    pub token_from: String,
+    pub swap_recipient: String,
+    pub value_received: i64,
 }
 
 #[derive(Debug, Serialize)]
-pub struct AutoSwapResponse {
-    pub message: String,
-}
-
-#[derive(Debug, PartialEq, Eq, Deserialize, Clone, Encode, Decode)]
-pub struct PoolKey {
-    pub token0: Felt,
-    pub token1: Felt,
-    pub fee: u128,
-    pub tick_spacing: u128,
-    pub extension: Felt,
-}
-
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Encode, Decode)]
-pub struct I129 {
-    pub mag: u128,
-    pub sign: bool,
-}
-
-#[derive(Debug, Clone, Eq, PartialEq, Encode, Decode)]
-pub struct SwapParameters {
-    pub amount: I129,
-    pub is_token1: bool,
-    pub sqrt_ratio_limit: U256,
-    pub skip_ahead: u128,
-}
-
-#[derive(Debug, Clone, Eq, PartialEq, Encode, Decode)]
-pub struct SwapData {
-    pub params: SwapParameters,
-    pub pool_key: PoolKey,
-    pub caller: Felt,
+pub struct SuccessResponse {
+    pub success: bool,
 }
 
 #[derive(FromRow, Debug, Serialize)]

@@ -13,11 +13,11 @@ async fn test_subscribe_ok() {
     clean_database(&app.db.pool).await;
 
     let payload = json!({
-        "wallet_address": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-        "to_token": "0x1234567890123456789012345678901234567890",
+        "wallet_address": "0xdbfcab49bd9bced4636b04319d71fbd0d84bde78a1d38e9e2fc391e83187c1c3",
+        "to_token": "0xde3bc70e81af42a996a559a60f0fdf1cb371f012790f1b30de709efa637b9af5",
         "from_token": [
-            "0xabcdef0123456789abcdef0123456789abcdef01",
-            "0x9876543210987654321098765432109876543210"
+            "0x07ab8059db97aab8ced83b37a1d60b8eef540f6cdc96acc153d583a59bedd125",
+            "0x40ca979f20ed76f960dc719457eaf0cef3b2c3932d58435b9192a58bc56c1e40"
         ],
         "percentage": [60, 40]
     });
@@ -39,11 +39,11 @@ async fn test_successful_subscription_creation() {
 
     clean_database(&app.db.pool).await;
 
-    let wallet_address = "0x742d35Cc6634C0532925a3b844Bc454e4438f44e";
-    let to_token = "0x1234567890123456789012345678901234567890";
+    let wallet_address = "0x40ca979f20ed76f960dc719457eaf0cef3b2c3932d58435b9192a58bc56c1e40";
+    let to_token = "0xdbfcab49bd9bced4636b04319d71fbd0d84bde78a1d38e9e2fc391e83187c1c3";
     let from_tokens = vec![
-        "0xabcdef0123456789abcdef0123456789abcdef01",
-        "0x9876543210987654321098765432109876543210",
+        "0x07ab8059db97aab8ced83b37a1d60b8eef540f6cdc96acc153d583a59bedd125",
+        "0x40ca979f20ed76f960dc719457eaf0cef3b2c3932d58435b9192a58bc56c1e40",
     ];
     let percentages = vec![60, 40];
 
@@ -67,8 +67,8 @@ async fn test_successful_subscription_creation() {
 
     let subscription = sqlx::query!(
         r#"
-        SELECT wallet_address, to_token, is_active 
-        FROM swap_subscription 
+        SELECT wallet_address, to_token, is_active
+        FROM swap_subscription
         WHERE wallet_address = $1
         "#,
         wallet_address
@@ -124,11 +124,11 @@ async fn test_invalid_percentage_length() {
     clean_database(&app.db.pool).await;
 
     let payload = json!({
-        "wallet_address": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-        "to_token": "0x1234567890123456789012345678901234567890",
+        "wallet_address": "0x40ca979f20ed76f960dc719457eaf0cef3b2c3932d58435b9192a58bc56c1e40",
+        "to_token": "0x07ab8059db97aab8ced83b37a1d60b8eef540f6cdc96acc153d583a59bedd125",
         "from_token": [
-            "0xabcdef0123456789abcdef0123456789abcdef01",
-            "0x9876543210987654321098765432109876543210"
+            "0xdbfcab49bd9bced4636b04319d71fbd0d84bde78a1d38e9e2fc391e83187c1c3",
+            "0xde3bc70e81af42a996a559a60f0fdf1cb371f012790f1b30de709efa637b9af5"
         ],
         "percentage": [20]
     });
@@ -152,10 +152,10 @@ async fn test_invalid_wallet_address() {
 
     let payload = json!({
         "wallet_address": "invalid_wallet_address",
-        "to_token": "0x1234567890123456789012345678901234567890",
+        "to_token": "0xdbfcab49bd9bced4636b04319d71fbd0d84bde78a1d38e9e2fc391e83187c1c3",
         "from_token": [
-            "0xabcdef0123456789abcdef0123456789abcdef01",
-            "0x9876543210987654321098765432109876543210"
+            "0x07ab8059db97aab8ced83b37a1d60b8eef540f6cdc96acc153d583a59bedd125",
+            "0x40ca979f20ed76f960dc719457eaf0cef3b2c3932d58435b9192a58bc56c1e40"
         ],
         "percentage": [20, 80]
     });
@@ -178,11 +178,11 @@ async fn test_invalid_to_token_address() {
     clean_database(&app.db.pool).await;
 
     let payload = json!({
-        "wallet_address": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+        "wallet_address": "0x07ab8059db97aab8ced83b37a1d60b8eef540f6cdc96acc153d583a59bedd125",
         "to_token": "invalid_to_token",
         "from_token": [
-            "0xabcdef0123456789abcdef0123456789abcdef01",
-            "0x9876543210987654321098765432109876543210"
+            "0x40ca979f20ed76f960dc719457eaf0cef3b2c3932d58435b9192a58bc56c1e40",
+            "0xdbfcab49bd9bced4636b04319d71fbd0d84bde78a1d38e9e2fc391e83187c1c3"
         ],
         "percentage": [20, 80]
     });
@@ -204,7 +204,7 @@ async fn test_successful_subscription_retrieval() {
 
     let req = Request::builder()
         .method("GET")
-        .uri("/subscriptions?wallet_address=0x742d35Cc6634C0532925a3b844Bc454e4438f44e")
+        .uri("/subscriptions?wallet_address=0xdbfcab49bd9bced4636b04319d71fbd0d84bde78a1d38e9e2fc391e83187c1c3")
         .header(CONTENT_TYPE, "application/json")
         .body(Body::empty())
         .unwrap();

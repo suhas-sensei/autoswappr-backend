@@ -1,8 +1,8 @@
 use axum::{extract::Query, extract::State, http::StatusCode, Json};
 
 use super::types::{
-    CreateSubscriptionRequest, CreateSubscriptionResponse, GetSubscriptionRequest,
-    GetSubscriptionResponse, SubscriptionData,
+    CreateSubscriptionRequest, GetSubscriptionRequest, GetSubscriptionResponse, SubscriptionData,
+    SuccessResponse,
 };
 use crate::api_error::ApiError;
 use crate::AppState;
@@ -16,16 +16,23 @@ const LIMIT: i32 = 10;
 pub async fn create_subscription(
     State(state): State<AppState>,
     Json(payload): Json<CreateSubscriptionRequest>,
-) -> Result<Json<CreateSubscriptionResponse>, StatusCode> {
-    if payload.from_token.len() != payload.percentage.len() {
+) -> Result<Json<SuccessResponse>, StatusCode> {
+    let CreateSubscriptionRequest {
+        wallet_address,
+        to_token,
+        from_token,
+        percentage,
+    } = payload;
+
+    if from_token.len() != percentage.len() {
         return Err(StatusCode::BAD_REQUEST);
     }
 
-    if !payload.to_token.starts_with("0x") && payload.to_token.len() != 42 {
+    if !to_token.starts_with("0x") || to_token.len() != 66 {
         return Err(StatusCode::BAD_REQUEST);
     }
 
-    if !payload.wallet_address.starts_with("0x") && payload.wallet_address.len() != 42 {
+    if !wallet_address.starts_with("0x") || wallet_address.len() != 66 {
         return Err(StatusCode::BAD_REQUEST);
     }
 
@@ -43,21 +50,21 @@ pub async fn create_subscription(
         ON CONFLICT (wallet_address)
         DO UPDATE SET to_token = $2, is_active = true, updated_at = NOW()
         "#,
-        payload.wallet_address,
-        payload.to_token,
+        wallet_address,
+        to_token,
     )
     .execute(&mut *tx)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    for (token, percentage) in payload.from_token.iter().zip(payload.percentage.iter()) {
+    for (token, percentage) in from_token.iter().zip(percentage.iter()) {
         sqlx::query!(
             r#"
             INSERT INTO swap_subscription_from_token
             (wallet_address, from_token, percentage)
             VALUES ($1, $2, $3)
             "#,
-            payload.wallet_address,
+            wallet_address,
             token,
             percentage,
         )
@@ -70,9 +77,7 @@ pub async fn create_subscription(
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    Ok(Json(CreateSubscriptionResponse {
-        wallet_address: payload.wallet_address,
-    }))
+    Ok(Json(SuccessResponse { success: true }))
 }
 
 pub async fn get_subscription(
@@ -101,7 +106,7 @@ pub async fn get_subscription(
             TO_CHAR(swap_subscription_from_token.created_at, 'YYYY-MM-DD"T"HH24:MI:SSZ') AS created_at
         FROM swap_subscription_from_token
         INNER JOIN swap_subscription ON swap_subscription_from_token.wallet_address = swap_subscription.wallet_address
-        WHERE swap_subscription_from_token.created_at < $1::TIMESTAMPTZ 
+        WHERE swap_subscription_from_token.created_at < $1::TIMESTAMPTZ
         AND swap_subscription_from_token.wallet_address = $2;
         "#
     )

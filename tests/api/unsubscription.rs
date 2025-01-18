@@ -16,8 +16,8 @@ async fn test_unsubscribe_success() {
         VALUES ($1, $2)
         ON CONFLICT (wallet_address) DO NOTHING
         "#,
-        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-        "0x123400000000000000000000000000000000ABCD"
+        "0xdbfcab49bd9bced4636b04319d71fbd0d84bde78a1d38e9e2fc391e83187c1c3",
+        "0x07ab8059db97aab8ced83b37a1d60b8eef540f6cdc96acc153d583a59bedd125"
     )
     .execute(&app.db.pool)
     .await
@@ -29,8 +29,8 @@ async fn test_unsubscribe_success() {
         VALUES ($1, $2, $3)
         ON CONFLICT (wallet_address, from_token) DO NOTHING
         "#,
-        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-        "0x1234000000000000000000000000000000001234",
+        "0xdbfcab49bd9bced4636b04319d71fbd0d84bde78a1d38e9e2fc391e83187c1c3",
+        "0x07ab8059db97aab8ced83b37a1d60b8eef540f6cdc96acc153d583a59bedd125",
         50
     )
     .execute(&app.db.pool)
@@ -45,8 +45,8 @@ async fn test_unsubscribe_success() {
                 .header("Content-Type", "application/json")
                 .body(Body::from(
                     json!({
-                        "wallet_address": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-                        "from_token": "0x1234000000000000000000000000000000001234"
+                        "wallet_address": "0xdbfcab49bd9bced4636b04319d71fbd0d84bde78a1d38e9e2fc391e83187c1c3",
+                        "from_token": "0x07ab8059db97aab8ced83b37a1d60b8eef540f6cdc96acc153d583a59bedd125"
                     })
                     .to_string(),
                 ))
@@ -59,8 +59,7 @@ async fn test_unsubscribe_success() {
     let body = to_bytes(response.into_body(), 1024 * 16).await.unwrap();
     let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
 
-    assert_eq!(json["status"], "success");
-    assert_eq!(json["message"], "Successfully unsubscribed");
+    assert_eq!(json["success"], true);
 }
 
 #[tokio::test]
@@ -76,7 +75,7 @@ async fn test_unsubscribe_invalid_wallet() {
                 .body(Body::from(
                     json!({
                         "wallet_address": "invalid_wallet",
-                        "from_token": "0x1234000000000000000000000000000000001234"
+                        "from_token": "0x07ab8059db97aab8ced83b37a1d60b8eef540f6cdc96acc153d583a59bedd125"
                     })
                     .to_string(),
                 ))
@@ -99,7 +98,7 @@ async fn test_unsubscribe_invalid_token() {
                 .header("Content-Type", "application/json")
                 .body(Body::from(
                     json!({
-                        "wallet_address": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+                        "wallet_address": "0x07ab8059db97aab8ced83b37a1d60b8eef540f6cdc96acc153d583a59bedd125",
                         "from_token": "invalid_token"
                     })
                     .to_string(),
