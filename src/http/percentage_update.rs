@@ -1,4 +1,4 @@
-use super::types::{SuccessResponse, UpdatePercentageRequest};
+use super::types::{is_valid_address, SuccessResponse, UpdatePercentageRequest};
 use crate::AppState;
 use axum::{extract::State, http::StatusCode, Json};
 
@@ -12,15 +12,14 @@ pub async fn update_percentage(
         percentage,
     } = payload;
 
-    // wallet address validation
-    if !wallet_address.starts_with("0x") || wallet_address.len() != 66 {
+    if !is_valid_address(&wallet_address) || !is_valid_address(&from_token) {
         return Err(StatusCode::BAD_REQUEST);
     }
     if percentage <= 0 || percentage > 100 {
         return Err(StatusCode::BAD_REQUEST);
     }
 
-    // percent updte
+    // percent update
     let result = sqlx::query!(
         r#"
         UPDATE swap_subscription_from_token

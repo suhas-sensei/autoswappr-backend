@@ -9,6 +9,7 @@ mod percentage_update;
 mod subscription;
 mod transaction_logs;
 mod types;
+pub use types::is_valid_address;
 mod unsubscription;
 use crate::AppState;
 
