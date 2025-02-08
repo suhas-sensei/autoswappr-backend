@@ -11,6 +11,7 @@ pub mod utils;
 
 pub use config::*;
 pub use db::*;
+pub use utils::ethereum::*;
 
 // App State to be shared accross requests.
 #[derive(Clone)]
